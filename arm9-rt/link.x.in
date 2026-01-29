@@ -1,0 +1,142 @@
+/* ARM9 Linker Script for F1C100S */
+/*
+ * F1C100S 启动流程说明:
+ * 从 SPI Flash / SD Card 启动时:
+ * 1. BROM 读取 boot0 镜像到 SRAM 0x00000000
+ * 2. boot0 镜像结构:
+ *    - 0x00-0x1F: eGON.BT0 header (由 mkboot.py 添加)
+ *    - 0x20-0x2F: BROM 会写入 boot device info (不能放代码!)
+ *    - 0x30+: 用户代码 (本文件编译后的内容)
+ * 3. BROM 验证 header 后跳转到 0x30 执行
+ */
+
+INCLUDE memory.x
+
+ENTRY(_start);
+
+/* 默认异常处理器 */
+PROVIDE(Undefined = DefaultHandler_);
+PROVIDE(SWI = DefaultHandler_);
+PROVIDE(PrefetchAbort = DefaultHandler_);
+PROVIDE(DataAbort = DefaultHandler_);
+PROVIDE(IRQ = DefaultHandler_);
+PROVIDE(FIQ = DefaultHandler_);
+PROVIDE(__pre_init = DefaultPreInit);
+
+/* Stack sizes */
+_fiq_stack_size = DEFINED(_fiq_stack_size) ? _fiq_stack_size : 0x100;
+_irq_stack_size = DEFINED(_irq_stack_size) ? _irq_stack_size : 0x400;
+_abt_stack_size = DEFINED(_abt_stack_size) ? _abt_stack_size : 0x100;
+_und_stack_size = DEFINED(_und_stack_size) ? _und_stack_size : 0x100;
+_svc_stack_size = DEFINED(_svc_stack_size) ? _svc_stack_size : 0x400;
+
+/* F1C100S boot header 偏移量 */
+_boot_header_size = 0x30;
+
+SECTIONS
+{
+    PROVIDE(_ram_start = ORIGIN(RAM));
+    PROVIDE(_ram_end = ORIGIN(RAM) + LENGTH(RAM));
+
+    /*
+     * F1C100S Boot Header 区域
+     * 0x00-0x1F: eGON.BT0 header (由外部工具 mkboot.py 填充)
+     * 0x20-0x2F: BROM boot device info (运行时由 BROM 写入)
+     */
+    .boot_header ORIGIN(FLASH) (NOLOAD) :
+    {
+        . = _boot_header_size;
+    } > FLASH
+
+    /*
+     * 入口点: 必须位于 0x30
+     * BROM 验证 header 后跳转到此处执行
+     */
+    .entry (ORIGIN(FLASH) + _boot_header_size) :
+    {
+        KEEP(*(.entry))
+    } > FLASH
+
+    .vector_table : ALIGN(32)
+    {
+        __vector_table = .;
+        KEEP(*(.vector_table))
+        . = ALIGN(4);
+    } > FLASH
+
+    PROVIDE(_stext = ADDR(.vector_table) + SIZEOF(.vector_table));
+
+    .text _stext :
+    {
+        __stext = .;
+        *(.Reset)
+        *(.text .text.*)
+        . = ALIGN(4);
+        __etext = .;
+    } > FLASH
+
+    .rodata : ALIGN(4)
+    {
+        . = ALIGN(4);
+        __srodata = .;
+        *(.rodata .rodata.*)
+        . = ALIGN(4);
+        __erodata = .;
+    } > FLASH
+
+    .data : ALIGN(4)
+    {
+        . = ALIGN(4);
+        __sdata = .;
+        *(.data .data.*)
+        . = ALIGN(4);
+    } > RAM AT>FLASH
+    . = ALIGN(4);
+    __edata = .;
+
+    __sidata = LOADADDR(.data);
+
+    .bss (NOLOAD) : ALIGN(4)
+    {
+        . = ALIGN(4);
+        __sbss = .;
+        *(.bss .bss.*)
+        *(COMMON)
+        . = ALIGN(4);
+    } > RAM
+    . = ALIGN(4);
+    __ebss = .;
+
+    .uninit (NOLOAD) : ALIGN(4)
+    {
+        . = ALIGN(4);
+        __suninit = .;
+        *(.uninit .uninit.*)
+        . = ALIGN(4);
+        __euninit = .;
+    } > RAM
+
+    . = ALIGN(4);
+    PROVIDE(__sheap = .);
+
+    _und_stack_start = _ram_end - _fiq_stack_size - _irq_stack_size - _svc_stack_size - _abt_stack_size - _und_stack_size;
+    _abt_stack_start = _ram_end - _fiq_stack_size - _irq_stack_size - _svc_stack_size - _abt_stack_size;
+    _svc_stack_start = _ram_end - _fiq_stack_size - _irq_stack_size - _svc_stack_size;
+    _irq_stack_start = _ram_end - _fiq_stack_size - _irq_stack_size;
+    _fiq_stack_start = _ram_end - _fiq_stack_size;
+    _stack_start = _ram_end;
+
+    /DISCARD/ :
+    {
+        *(.ARM.exidx)
+        *(.ARM.exidx.*)
+        *(.ARM.extab.*)
+    }
+}
+
+ASSERT(ORIGIN(FLASH) % 4 == 0, "ERROR: FLASH must be 4-byte aligned");
+ASSERT(ORIGIN(RAM) % 4 == 0, "ERROR: RAM must be 4-byte aligned");
+ASSERT(__sdata % 4 == 0 && __edata % 4 == 0, "BUG: .data not 4-byte aligned");
+ASSERT(__sbss % 4 == 0 && __ebss % 4 == 0, "BUG: .bss not 4-byte aligned");
+ASSERT(__sheap % 4 == 0, "BUG: heap not 4-byte aligned");
+ASSERT(__sheap <= _und_stack_start, "ERROR: heap overlaps stack");

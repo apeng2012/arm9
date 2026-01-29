@@ -5,7 +5,7 @@
 //! the device specific interrupts. After logging the message the panic handler trigger a breakpoint
 //! and then goes into an infinite loop.
 //!
-//! Currently, this crate only supports the ARM Cortex-M architecture.
+//! Currently, this crate only supports the ARM architecture.
 //!
 //! [`cortex-m-semihosting`]: https://crates.io/crates/cortex-m-semihosting
 //!
@@ -42,7 +42,7 @@
 //!
 //! When this feature is enabled the panic handler performs an exit semihosting call after logging
 //! the panic message. This is useful when emulating the program on QEMU as it causes the QEMU
-//! process to exit with a non-zero exit code; thus it can be used to implement Cortex-M tests that
+//! process to exit with a non-zero exit code; thus it can be used to implement ARM tests that
 //! run on the host.
 //!
 //! We discourage using this feature when the program will run on hardware as the exit call can
@@ -53,15 +53,15 @@
 #![deny(missing_docs)]
 #![deny(warnings)]
 
-extern crate cortex_m;
-extern crate cortex_m_semihosting as sh;
+extern crate arm9;
+extern crate arm9_semihosting as sh;
 
 use core::fmt::Write;
 use core::panic::PanicInfo;
 
 #[cfg(not(feature = "exit"))]
-use cortex_m::asm;
-use cortex_m::interrupt;
+use arm9::asm;
+use arm9::interrupt;
 #[cfg(feature = "exit")]
 use sh::debug::{self, EXIT_FAILURE};
 use sh::hio;

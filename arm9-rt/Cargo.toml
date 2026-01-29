@@ -1,0 +1,53 @@
+[package]
+authors = [
+    "The Cortex-M Team <cortex-m@teams.rust-embedded.org>",
+    "Jorge Aparicio <jorge@japaric.io>",
+    "Hideki Sekine <sekineh@me.com>",
+]
+categories = ["embedded", "no-std"]
+description = "Minimal runtime / startup for Cortex-M microcontrollers"
+documentation = "https://docs.rs/cortex-m-rt/"
+keywords = ["arm", "arm9", "runtime", "startup"]
+license = "MIT OR Apache-2.0"
+name = "arm9-rt"
+readme = "README.md"
+repository = "https://github.com/rust-embedded/cortex-m"
+version = "0.7.5"
+autoexamples = true
+edition = "2021"
+rust-version = "1.61"
+
+[dependencies]
+arm9-rt-macros = { path = "macros", version = "=0.7.5" }
+
+[dev-dependencies]
+arm9 = { version = "0.7.4", path = "../arm9" }
+panic-halt = "0.2.0"
+arm9-semihosting = { path = "../arm9-semihosting" }
+
+[target.'cfg(not(target_os = "none"))'.dev-dependencies]
+compiletest_rs = "0.11"
+
+[[example]]
+name = "device"
+required-features = ["device"]
+
+[[example]]
+name = "warnings"
+required-features = ["device"]
+
+[[test]]
+name = "compiletest"
+required-features = ["device"]
+
+[features]
+device = []
+set-sp = []
+set-vtor = []
+set-msplim = []
+zero-init-ram = []
+paint-stack = []
+skip-data-copy = []
+
+[package.metadata.docs.rs]
+features = ["device"]

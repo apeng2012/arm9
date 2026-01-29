@@ -15,12 +15,12 @@ rust-version = "1.61"
 edition = "2021"
 
 [dependencies]
-cortex-m = { path = "../cortex-m", version = ">= 0.5.6, < 0.8" }
-cortex-m-semihosting = { path = "../cortex-m-semihosting", version = ">= 0.5.0, < 0.6" }
+arm9 = { path = "../arm9", version = "0.7.7" }
+arm9-semihosting = { path = "../arm9-semihosting", version = ">= 0.5.0, < 0.6" }
 
 [features]
 exit = []
-jlink-quirks = ["cortex-m-semihosting/jlink-quirks"]
+jlink-quirks = ["arm9-semihosting/jlink-quirks"]
 
 [package.metadata.docs.rs]
-targets = ["thumbv6m-none-eabi"]
+targets = ["armv5te-none-eabi"]

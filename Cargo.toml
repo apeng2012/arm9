@@ -1,14 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "cortex-m",
+    "arm9",
     "cortex-m-types",
-    "cortex-m-rt",
-    "cortex-m-semihosting",
-    "panic-itm",
+    "arm9-rt",
+    "arm9-semihosting",
     "panic-semihosting",
-    "testsuite",
-    "testsuite/minitest",
-    "testsuite/minitest/macros",
-    "xtask",
 ]

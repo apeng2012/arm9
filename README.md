@@ -1,35 +1,36 @@
-# Cortex-M crates
+# ARM9 Crates for F1C100S
 
-This repository contains various crates useful for writing Rust programs
-on Cortex-M microcontrollers:
+This repository contains Rust crates for ARM9 processors, specifically targeting the Allwinner F1C100S SoC (ARM926EJ-S core).
 
-* [`cortex-m`]: CPU peripheral access and intrinsics
-* [`cortex-m-rt`]: Startup code and interrupt handling
-* [`cortex-m-semihosting`]: Support for semihosting debugging
-* [`cortex-m-interrupt-number`]: Shared trait for interacting with peripheral access crates
-* [`panic-itm`]: Panic handler that sends messages over the ITM/SWO output
-* [`panic-semihosting`]: Panic handler that sends messages over semihosting
+Forked from [cortex-m](https://github.com/rust-embedded/cortex-m) and adapted for ARM9 architecture.
 
-[`cortex-m`]: https://crates.io/crates/cortex-m
-[`cortex-m-rt`]: https://crates.io/crates/cortex-m-rt
-[`cortex-m-semihosting`]: https://crates.io/crates/cortex-m-semihosting
-[`cortex-m-interrupt-number`]: https://crates.io/crates/cortex-m-interrupt-number
-[`panic-itm`]: https://crates.io/crates/panic-itm
-[`panic-semihosting`]: https://crates.io/crates/panic-semihosting
+## Crates
 
-This project is developed and maintained by the [Cortex-M team][team].
+* [`arm9`](arm9/): CPU peripheral access and intrinsics for ARM9
+* [`arm9-rt`](arm9-rt/): Startup code and exception handling
+* [`arm9-semihosting`](arm9-semihosting/): Semihosting support for debugging
+* [`panic-semihosting`](panic-semihosting/): Panic handler using semihosting
 
-### Contribution
+## Target Device
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the
-work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
-additional terms or conditions.
+- **SoC**: Allwinner F1C100S
+- **Core**: ARM926EJ-S (ARMv5TEJ)
+- **Target triple**: `armv5te-none-eabi`
 
-## Code of Conduct
+## Key Differences from Cortex-M
 
-Contribution to this repository is organized under the terms of the [Rust Code
-of Conduct][CoC], the maintainer of this crate, the [Cortex-M team][team],
-promises to intervene to uphold that code of conduct.
+- No NVIC (interrupt controller is external/chip-specific)
+- No SysTick timer
+- Different exception model (7 exceptions vs Cortex-M's vector table)
+- Different processor modes (User/FIQ/IRQ/SVC/ABT/UND/SYS)
+- CPSR instead of xPSR
+- ARM Angel semihosting (SVC #0x123456) instead of BKPT
 
-[CoC]: CODE_OF_CONDUCT.md
-[team]: https://github.com/rust-embedded/wg#the-cortex-m-team
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.

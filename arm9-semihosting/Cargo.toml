@@ -1,0 +1,24 @@
+[package]
+authors = [
+    "The Cortex-M Team <cortex-m@teams.rust-embedded.org>",
+    "Jorge Aparicio <japaricious@gmail.com>",
+]
+description = "Semihosting for ARM processors"
+documentation = "https://docs.rs/cortex-m-semihosting"
+keywords = ["semihosting", "arm", "cortex-m"]
+categories = ["no-std", "embedded"]
+license = "MIT OR Apache-2.0"
+name = "arm9-semihosting"
+readme = "README.md"
+repository = "https://github.com/rust-embedded/cortex-m"
+version = "0.5.0"
+edition = "2021"
+rust-version = "1.61"
+
+[features]
+jlink-quirks = []
+no-semihosting = []
+
+[dependencies]
+arm9 = { path = "../arm9", version = "0.7.7" }
+critical-section = "1.0.0"

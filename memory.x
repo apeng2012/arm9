@@ -3,6 +3,17 @@
  * don't just copy these.
  */
 
+/*
+ * F1C100S 内存布局:
+ * SRAM: 0x00000000 - 0x00007FFF (32KB)
+ * DDR:  需要初始化后才能使用
+ *
+ * Boot 镜像加载到 SRAM 0x00000000:
+ * - 0x00-0x1F: eGON.BT0 header
+ * - 0x20-0x2F: BROM boot device info
+ * - 0x30+: 用户代码入口
+ */
+
 MEMORY
 {
   /* FLASH and RAM are mandatory memory regions */
