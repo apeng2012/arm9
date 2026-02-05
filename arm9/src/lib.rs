@@ -26,3 +26,6 @@ pub mod register;
 
 #[cfg(feature = "critical-section-single-core")]
 mod critical_section_impl;
+
+#[cfg(feature = "critical-section-single-core")]
+pub mod atomic;
