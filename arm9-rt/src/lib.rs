@@ -140,6 +140,11 @@ Reset:
     orr r0, r0, #0xC0
     msr cpsr_c, r0
 
+    @ 确保 CP15 V 位 = 0，异常向量表在 0x00000000
+    mrc p15, 0, r0, c1, c0, 0
+    bic r0, r0, #0x2000
+    mcr p15, 0, r0, c1, c0, 0
+
     @ 设置各模式的栈指针
     msr cpsr_c, #0xD1
     ldr sp, =_fiq_stack_start
