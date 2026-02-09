@@ -19,8 +19,9 @@ PROVIDE(Undefined = DefaultHandler_);
 PROVIDE(SWI = DefaultHandler_);
 PROVIDE(PrefetchAbort = DefaultHandler_);
 PROVIDE(DataAbort = DefaultHandler_);
-PROVIDE(IRQ = DefaultHandler_);
-PROVIDE(FIQ = DefaultHandler_);
+/* IRQ/FIQ 的 asm wrapper 已在 arm9-rt 中定义，这里只提供内部 handler 的默认值 */
+PROVIDE(__irq_handler = DefaultHandler_);
+PROVIDE(__fiq_handler = DefaultHandler_);
 PROVIDE(__pre_init = DefaultPreInit);
 
 /* Stack sizes */

@@ -194,6 +194,43 @@ Reset:
 "#
 );
 
+// IRQ wrapper: proper context save/restore for IRQ mode
+// ARM9 IRQ 入口必须:
+// 1. sub lr, #4 修正返回地址 (ARM 流水线导致 lr 多了 4)
+// 2. 保存 caller-saved 寄存器到 IRQ 栈
+// 3. 调用实际 handler
+// 4. ldmfd ... pc}^ 恢复 SPSR 到 CPSR 并返回
+global_asm!(
+    r#"
+    .section .text.IRQ, "ax"
+    .global IRQ
+    .type IRQ, %function
+    .arm
+IRQ:
+    sub lr, lr, #4
+    stmfd sp!, {{r0-r3, r12, lr}}
+    bl __irq_handler
+    ldmfd sp!, {{r0-r3, r12, pc}}^
+    .size IRQ, . - IRQ
+"#
+);
+
+// FIQ wrapper: same idea, but FIQ has banked r8-r12 so we only save r0-r7, lr
+global_asm!(
+    r#"
+    .section .text.FIQ, "ax"
+    .global FIQ
+    .type FIQ, %function
+    .arm
+FIQ:
+    sub lr, lr, #4
+    stmfd sp!, {{r0-r3, r12, lr}}
+    bl __fiq_handler
+    ldmfd sp!, {{r0-r3, r12, pc}}^
+    .size FIQ, . - FIQ
+"#
+);
+
 // Default exception handlers
 global_asm!(
     r#"

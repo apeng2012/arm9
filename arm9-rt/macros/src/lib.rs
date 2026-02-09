@@ -191,7 +191,13 @@ pub fn exception(args: TokenStream, input: TokenStream) -> TokenStream {
         Ok(x) => x,
     };
 
-    let export_ident = f.sig.ident.clone();
+    let export_ident = match _exn {
+        // IRQ/FIQ: 导出为 __irq_handler/__fiq_handler，由 arm9-rt 的 asm wrapper 调用
+        Exception::IRQ => Ident::new("__irq_handler", Span::call_site()),
+        Exception::FIQ => Ident::new("__fiq_handler", Span::call_site()),
+        // 其他异常直接导出原名
+        _ => f.sig.ident.clone(),
+    };
     let internal_ident = Ident::new(&format!("__cortex_m_rt_{}", f.sig.ident), Span::call_site());
     f.sig.ident = internal_ident.clone();
 
