@@ -31,8 +31,9 @@ _abt_stack_size = DEFINED(_abt_stack_size) ? _abt_stack_size : 0x100;
 _und_stack_size = DEFINED(_und_stack_size) ? _und_stack_size : 0x100;
 _svc_stack_size = DEFINED(_svc_stack_size) ? _svc_stack_size : 0x400;
 
-/* F1C100S boot header 偏移量 */
-_boot_header_size = 0x30;
+/* Boot header 偏移量，默认为 0 (无 header) */
+/* F1C100S 从 SPI/SD 直接启动时需在 memory.x 中设为 0x30 (eGON.BT0 header) */
+PROVIDE(_boot_header_size = 0x0);
 
 SECTIONS
 {
@@ -46,7 +47,7 @@ SECTIONS
      */
     .boot_header ORIGIN(FLASH) (NOLOAD) :
     {
-        . = _boot_header_size;
+        . = . + _boot_header_size;
     } > FLASH
 
     /*
